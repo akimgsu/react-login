@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 12
+
+    build:
+        commands:
+            - aws s3 sync ./  s3://"$bucket_name"/  --delete  --region ap-northeast-2
+
+artifacts:
+    files:
+        - "**/*"
+    base-directory: ./

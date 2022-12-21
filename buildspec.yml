@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+    install:
+
+        commands:
+            # - "yum install jq -y"
+            - n 14.18.3
+            - "npm install yarn -g"
+    pre_build:
+        commands:
+            - echo $ssm_name
+            - echo $bucket_name
+            - echo ""$ssm_name"/api_gateway_id"
+            - 'api_gateway_id=`aws ssm get-parameter --name ""$ssm_name"/api_gateway_id" --region ap-northeast-2 --output text | awk ''{print $7}''`'
+            - echo $api_gateway_id
+            - 'api_host="https://"$api_gateway_id".execute-api.ap-northeast-2.amazonaws.com/"'
+            - "echo $api_host"
+            - echo -e "\nREACT_APP_API_PATH="$api_host"" >> .env
+            - cat .env
+            - yarn
+    build:
+        commands:
+            - yarn build
+    post_build:
+        commands:
+            - cp buildspec_deploy.yml build/
+            - cd build
+            - ls
+artifacts:
+    files:
+        - "**/*"
+    base-directory: build
